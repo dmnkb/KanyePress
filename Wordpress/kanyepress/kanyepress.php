@@ -1,60 +1,54 @@
 <?php
 /**
- * KanyePress
+ * @package KanyePress
  *
  * Plugin Name: KanyePress
- * Plugin URI:
- * Description: This plugin serves randomly generated quotes by Kanye West via shortcode [kanye-press]. This is made possible by <a href="https://kanye.rest/" target="_blank">https://kanye.rest/</a>.
- * Version:     1.0.0
- * Author:      Dominik Borchert
- * Author URI:
- * License:     GPLv2 or later
- * License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- * Text Domain: classic-editor
- * Domain Path: /languages
- *
- * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
- * General Public License version 2, as published by the Free Software Foundation. You may NOT assume
- * that you can use any other version of the GPL.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * Plugin URI:	https://github.com/DerWeltbesteNachbar/KanyePress
+ * Description: „Keep squares out yo circle“ – Kayne West. Want quotes like this on your webpage? This plugin is what you need. Made possible by <a href="https://kanye.rest/" target="_blank">https://kanye.rest/</a>.
+ * Version:     0.1.0
+ * Author:      DerWeltbesteNachbar
+ * Author URI:	https://github.com/DerWeltbesteNachbar
+ * License:     GNU GPLv3 or later
+ * License URI: https://www.gnu.org/licenses/gpl-3.0
+ * Text Domain: kanyepress
  */
 
 defined( 'ABSPATH' ) or die( 'Invalid request.' );
 
-if ( ! class_exists( 'KanyeRest' ) ) :
-class KanyeRest {
+if ( ! class_exists( 'KanyePress' ) ) :
+class KanyePress {
 
 	private function __construct() {}
 
 	public static function init_actions() {
-
-		register_activation_hook( __FILE__, array( __CLASS__, 'activate' ) );
-		register_uninstall_hook( __FILE__, array( __CLASS__, 'uninstall' ) );
-
-		add_action( 'wp_head' , array( __CLASS__, 'kanyepress_js') );
-		add_action( 'wp_head' , array( __CLASS__, 'kanyepress_css') );
-
-		wp_enqueue_script( 'kanypress_script_1', plugin_dir_url( __FILE__ ) . 'static/js/2.8a9c6e85.chunk.js', 0, "1.0.0", 1);
-		wp_enqueue_script( 'kanypress_script_2', plugin_dir_url( __FILE__ ) . 'static/js/main.377356de.chunk.js', 0, "1.0.0", 1);
-
-		add_shortcode( 'kanye-press' , array( __CLASS__, 'add_kanyepress_root') );
-
+		add_action( 'wp_loaded', array( __CLASS__, 'enqueue_assets') );
+		add_shortcode( 'kanyepress' , array( __CLASS__, 'add_kanyepress_root') );
 	}
 
 	/**
 	 * Add react root element
 	 */
-	function add_kanyepress_root() {
+	public static function add_kanyepress_root() {
 		return '<div id="root"></div>';
+	}
+
+	/**
+	 * Enqueue assets
+	 */
+	public static function enqueue_assets() {
+		// generated react production files
+		wp_enqueue_script( 'kanypress_script_1', plugin_dir_url( __FILE__ ) . 'static/js/2.8a9c6e85.chunk.js', 0, "1.0.0", 1);
+		wp_enqueue_script( 'kanypress_script_2', plugin_dir_url( __FILE__ ) . 'static/js/main.377356de.chunk.js', 0, "1.0.0", 1);
+		// react javascript and css injected directly into the file
+		add_action( 'wp_head' , array( __CLASS__, 'react_js') );
+		// basic css styles
+		add_action( 'wp_head' , array( __CLASS__, 'styles') );
 	}
 
 	/**
 	 * JS
 	 */
-
-	function kanyepress_js() {
+	public static function react_js() {
 	?>
 		<script type='text/javascript'>
 			!function(a){function e(e){for(var r,t,n=e[0],o=e[1],u=e[2],p=0,l=[];p<n.length;p++)t=n[p],Object.prototype.hasOwnProperty.call(i,t)&&i[t]&&l.push(i[t][0]),i[t]=0;for(r in o)Object.prototype.hasOwnProperty.call(o,r)&&(a[r]=o[r]);for(s&&s(e);l.length;)l.shift()();return c.push.apply(c,u||[]),f()}
@@ -71,8 +65,7 @@ class KanyeRest {
 	/**
 	 * CSS
 	 */
-
-	function kanyepress_css() {
+	public static function styles() {
 		echo "
 		<style type='text/css'>
 		.kanypress {
@@ -103,22 +96,8 @@ class KanyeRest {
 		";
 	}
 
-	/**
-	 * Plugin activated.
-	 */
-	public static function activate() {
-
-	}
-
-	/**
-	 * Plugin deactivated.
-	 */
-	public static function uninstall() {
-
-	}
-
 }
 
-add_action( 'plugins_loaded', array( 'KanyeRest', 'init_actions' ) );
+add_action( 'plugins_loaded', array( 'KanyePress', 'init_actions' ) );
 
 endif;
